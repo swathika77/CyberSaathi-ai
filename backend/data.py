@@ -492,6 +492,36 @@ TOPIC_PROGRESS = [
 ]
 
 
+def build_daily_challenge() -> dict[str, Any]:
+    return {
+        "title": "Fake reward check",
+        "description": "A game reward arrives from a stranger. Stop, verify the source, and never share your password.",
+        "difficulty": "Medium",
+        "xpReward": 20,
+        "badge": "Scam Spotter",
+    }
+
+
+def build_learning_resources() -> list[dict[str, Any]]:
+    return [
+        {
+            "title": "Check before you click",
+            "type": "Quick tip",
+            "description": "Use official apps and trusted channels before acting on urgent online messages.",
+        },
+        {
+            "title": "Safe online friend rules",
+            "type": "Guide",
+            "description": "Never move chats off-platform or share personal details with strangers.",
+        },
+        {
+            "title": "Privacy settings checklist",
+            "type": "Checklist",
+            "description": "Review who can see your profile, location, and personal information on social apps.",
+        },
+    ]
+
+
 def build_student_summary() -> dict[str, Any]:
     return {
         "studentName": "Aarav",

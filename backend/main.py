@@ -9,7 +9,13 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from backend.data import SCENARIOS, build_student_summary, build_teacher_summary
+from backend.data import (
+    SCENARIOS,
+    build_daily_challenge,
+    build_learning_resources,
+    build_student_summary,
+    build_teacher_summary,
+)
 
 DB_PATH = Path(__file__).resolve().parent.parent / "cybersaathi.db"
 
@@ -139,6 +145,16 @@ def get_scenarios(category: str | None = Query(default=None)) -> list[dict[str, 
 @app.get("/api/student-summary")
 def get_student_summary() -> dict[str, Any]:
     return build_student_summary()
+
+
+@app.get("/api/daily-challenge")
+def get_daily_challenge() -> dict[str, Any]:
+    return build_daily_challenge()
+
+
+@app.get("/api/learning-resources")
+def get_learning_resources() -> list[dict[str, Any]]:
+    return build_learning_resources()
 
 
 @app.get("/api/teacher-summary")

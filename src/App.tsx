@@ -68,6 +68,20 @@ type TeacherSummary = {
   moduleAssignments: { module: string; status: string }[]
 }
 
+type DailyChallenge = {
+  title: string
+  description: string
+  difficulty: string
+  xpReward: number
+  badge: string
+}
+
+type LearningResource = {
+  title: string
+  type: string
+  description: string
+}
+
 type SubmissionResult = {
   is_correct: boolean
   score_awarded: number
@@ -169,6 +183,32 @@ const defaultTeacherSummary: TeacherSummary = {
     { module: 'Managing Online Friend Requests', status: 'Assigned' },
   ],
 }
+
+const defaultDailyChallenge: DailyChallenge = {
+  title: 'Fake reward check',
+  description: 'A game reward arrives from a stranger. Stop, verify the source, and never share your password.',
+  difficulty: 'Medium',
+  xpReward: 20,
+  badge: 'Scam Spotter',
+}
+
+const defaultResources: LearningResource[] = [
+  {
+    title: 'Check before you click',
+    type: 'Quick tip',
+    description: 'Use official apps and trusted channels before acting on urgent online messages.',
+  },
+  {
+    title: 'Safe online friend rules',
+    type: 'Guide',
+    description: 'Never move chats off-platform or share personal details with strangers.',
+  },
+  {
+    title: 'Privacy settings checklist',
+    type: 'Checklist',
+    description: 'Review who can see your profile, location, and personal information on social apps.',
+  },
+]
 
 function App() {
   return (
@@ -379,14 +419,24 @@ function LandingPage() {
 
 function StudentDashboard() {
   const [summary, setSummary] = useState<StudentSummary | null>(null)
+  const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge | null>(null)
+  const [resources, setResources] = useState<LearningResource[]>([])
 
   useEffect(() => {
     const loadSummary = async () => {
       try {
-        const data = await fetchJson<StudentSummary>('/api/student-summary')
-        setSummary(data)
+        const [studentData, challengeData, resourceData] = await Promise.all([
+          fetchJson<StudentSummary>('/api/student-summary'),
+          fetchJson<DailyChallenge>('/api/daily-challenge'),
+          fetchJson<LearningResource[]>('/api/learning-resources'),
+        ])
+        setSummary(studentData)
+        setDailyChallenge(challengeData)
+        setResources(resourceData)
       } catch {
         setSummary(defaultStudentSummary)
+        setDailyChallenge(defaultDailyChallenge)
+        setResources(defaultResources)
       }
     }
 
@@ -394,6 +444,8 @@ function StudentDashboard() {
   }, [])
 
   const resolvedSummary = summary ?? defaultStudentSummary
+  const resolvedChallenge = dailyChallenge ?? defaultDailyChallenge
+  const resolvedResources = resources.length > 0 ? resources : defaultResources
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
@@ -508,6 +560,53 @@ function StudentDashboard() {
                 <span key={badge} className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
                   {badge}
                 </span>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <div className="mt-8 grid gap-8 lg:grid-cols-[1.2fr_1fr]">
+          <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex items-center gap-2">
+              <Target className="h-5 w-5 text-violet-600" />
+              <h2 className="text-xl font-bold text-slate-900">Daily challenge</h2>
+            </div>
+            <div className="rounded-2xl bg-gradient-to-r from-violet-50 to-blue-50 p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm text-slate-500">{resolvedChallenge.difficulty}</p>
+                  <h3 className="mt-1 text-2xl font-black text-slate-900">{resolvedChallenge.title}</h3>
+                </div>
+                <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-violet-700">
+                  {resolvedChallenge.badge}
+                </span>
+              </div>
+              <p className="mt-4 text-slate-700">{resolvedChallenge.description}</p>
+              <div className="mt-5 flex items-center justify-between text-sm text-slate-600">
+                <span>Reward: +{resolvedChallenge.xpReward} XP</span>
+                <button type="button" className="rounded-full bg-slate-900 px-4 py-2 font-medium text-white hover:bg-blue-700">
+                  Start challenge
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-emerald-600" />
+              <h2 className="text-xl font-bold text-slate-900">Learning resources</h2>
+            </div>
+            <div className="space-y-3">
+              {resolvedResources.map((resource) => (
+                <div key={resource.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="mb-1 flex items-center justify-between gap-3">
+                    <p className="font-semibold text-slate-800">{resource.title}</p>
+                    <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-emerald-700">
+                      {resource.type}
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-600">{resource.description}</p>
+                </div>
               ))}
             </div>
           </section>
